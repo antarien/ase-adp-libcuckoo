@@ -40,9 +40,9 @@
 #
 # ==============================================================================
 ASE_ADP_LIBCUCKOO=00.00.01.00001
-ASE_ADP_LIBCUCKOO_NAME=ASE libcuckoo Adapter
-ASE_ADP_LIBCUCKOO_DESC=Header-only adapter exposing CMU's cuckoohash_map for lock-free concurrent O(1) maps
-ASE_ADP_LIBCUCKOO_LAYER=1
+ASE_ADP_LIBCUCKOO_NAME=ASE Adp Libcuckoo
+ASE_ADP_LIBCUCKOO_DESC=
+ASE_ADP_LIBCUCKOO_LAYER=5
 ASE_ADP_LIBCUCKOO_STATUS=seed
 ASE_ADP_LIBCUCKOO_CREATED=2026-05-06
 ASE_ADP_LIBCUCKOO_UPDATED=2026-05-06
