@@ -39,7 +39,7 @@
 #   stable = Production ready (set manually)
 #
 # ==============================================================================
-ASE_ADP_LIBCUCKOO=00.00.01.00001
+ASE_ADP_LIBCUCKOO=00.00.02.00002
 ASE_ADP_LIBCUCKOO_NAME=ASE Adp Libcuckoo
 ASE_ADP_LIBCUCKOO_DESC=
 ASE_ADP_LIBCUCKOO_LAYER=5
