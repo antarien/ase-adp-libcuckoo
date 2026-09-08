@@ -99,7 +99,29 @@ install(DIRECTORY include/ase
 )
 
 # ── Standalone example (only built when this CMakeLists is the top) ──
+#
+# The example writes through ase-log (WRFL_ASE_LOGGING_COMPLIANCE bans the
+# direct stdout call), so it links ase::log on top of the adapter. That is
+# an L1 dependency of the EXAMPLE, not of the adapter: the executable is a
+# consumer, and consumers may use the layers above this one. The adapter
+# target itself stays header-only and dependency-free.
+#
+# ase-log resolves its own generated header via ASE_ROOT when it is not
+# built from the repository root, so the standalone path needs that set.
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    if(NOT TARGET ase::log)
+        set(ASE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." CACHE PATH
+            "Repository root — ase-log locates its generated category header from here")
+        add_subdirectory(
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../core/ase-log
+            ${CMAKE_CURRENT_BINARY_DIR}/_ase-log
+        )
+    endif()
+
     add_executable(ase-adp-libcuckoo-example example/example_main.cpp)
-    target_link_libraries(ase-adp-libcuckoo-example PRIVATE ${PROJECT_NAME})
+    target_link_libraries(ase-adp-libcuckoo-example
+        PRIVATE
+            ${PROJECT_NAME}
+            ase::log
+    )
 endif()

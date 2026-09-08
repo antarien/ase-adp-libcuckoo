@@ -7,6 +7,14 @@
  *              exists so we have one binary that proves the FetchContent
  *              pipeline + the namespace alias all hang together.
  *
+ *              Output goes through ase-log, not printf: a direct write to
+ *              stdout bypasses the category system, shows up in no --log
+ *              selection and lands in no tier log file. Both failure paths
+ *              carry ERR::CAT::VALUE_INVALID — the value is present and
+ *              breaks the contract, and the run ends right there (return 1),
+ *              which is what puts them on the error level rather than the
+ *              warning level.
+ *
  *              Build standalone:
  *                cmake -B build && cmake --build build
  *                ./build/ase-adp-libcuckoo-example
@@ -18,8 +26,9 @@
 #include <ase/adp/libcuckoo/map.hpp>
 #include <ase/adp/libcuckoo/version.hpp>
 
+#include <ase/log/log.hpp>
+
 #include <atomic>
-#include <cstdio>
 #include <string>
 #include <thread>
 #include <vector>
@@ -33,9 +42,9 @@ constexpr int kExpectedSize = kThreads * kPerThread;
 }  // namespace
 
 int main() {
-    std::printf("ase-adp-libcuckoo v%s [%s]\n",
-                ase::adp::libcuckoo::VERSION_STRING,
-                ase::adp::libcuckoo::VERSION_STATUS);
+    ase::log::info("[AdpLibcuckooExample] ase-adp-libcuckoo v{} [{}]",
+                   ase::adp::libcuckoo::VERSION_STRING,
+                   ase::adp::libcuckoo::VERSION_STATUS);
 
     ase::adp::libcuckoo::Map<std::string, int> map;
 
@@ -56,19 +65,24 @@ int main() {
     for (auto& w : workers) w.join();
 
     const auto size = map.size();
-    std::printf("inserted: %zu / expected: %d (conflicts: %d)\n",
-                size, kExpectedSize, conflicts.load());
+    ase::log::info("[AdpLibcuckooExample] inserted: {} / expected: {} (conflicts: {})",
+                   size, kExpectedSize, conflicts.load());
 
     if (size != static_cast<size_t>(kExpectedSize)) {
-        std::printf("FAIL: size mismatch\n");
+        ase::log::error(ase::log::ERR::CAT::VALUE_INVALID,
+                        "AdpLibcuckooExample", "map_size",
+                        static_cast<float>(size),
+                        static_cast<float>(kExpectedSize));
         return 1;
     }
 
     int sample = -1;
     if (!map.find(std::string("t0_k42"), sample) || sample != 42) {
-        std::printf("FAIL: lookup mismatch (got %d)\n", sample);
+        ase::log::error(ase::log::ERR::CAT::VALUE_INVALID,
+                        "AdpLibcuckooExample", "lookup_t0_k42",
+                        static_cast<float>(sample));
         return 1;
     }
-    std::printf("OK\n");
+    ase::log::info("[AdpLibcuckooExample] OK");
     return 0;
 }

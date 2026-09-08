@@ -31,8 +31,13 @@
 
 #include <libcuckoo/cuckoohash_map.hh>
 
+// No <functional> here: WRFL_ASE_STD_FORBIDDEN bans the header tree-wide
+// because it carries std::function. The defaults below need std::hash and
+// std::equal_to, which are function OBJECTS, not type-erased callables —
+// they arrive with the upstream header. foundation/ase-containers/hash_map.hpp
+// declares `Hash = std::hash<Key>` the same way and carries no <functional>
+// either, so this follows the tree's existing form rather than inventing one.
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <utility>
 
